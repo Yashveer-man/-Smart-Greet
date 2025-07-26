@@ -10,15 +10,29 @@
     body {
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(120deg, #e3f6fd 0%, #fafafa 50%, #f9d8ec 100%);
+      /* Use your custom background image */
+      background: url('backgroung.jpg') no-repeat center center fixed;
+      background-size: cover;
       font-family: 'Montserrat', Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      /* Fallback color for slow image load */
+      background-color: #e3f6fd;
+      position: relative;
+    }
+    body::before {
+      /* Soft white overlay for readability */
+      content: "";
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(255,255,255,0.60);
+      pointer-events: none;
+      z-index: 0;
     }
     .container {
       background: #fff;
-      box-shadow: 0 6px 30px rgba(58,75,130,0.10), 0 1.5px 8px rgba(239,65,194,0.04);
+      box-shadow: 0 6px 30px rgba(58,75,130,0.12), 0 1.5px 8px rgba(239,65,194,0.09);
       border-radius: 18px;
       padding: 38px 26px 30px 26px;
       max-width: 410px;
@@ -26,6 +40,7 @@
       text-align: center;
       position: relative;
       animation: fadein 0.7s;
+      z-index: 1;
     }
     @keyframes fadein {
       from { opacity: 0; transform: translateY(40px);}
@@ -130,3 +145,149 @@
     #statusMsg {
       margin-top: 25px;
       font-weight: 500;
+      color: #199867;
+      background: #e8f6ed;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #e6f8ed60;
+    }
+    .summary b { color: #36bb90; }
+    .summary i { color: #ef41c0; }
+    @media (max-width:530px) {
+      .container {padding: 22px 4vw;}
+      h2 { font-size: 1em; }
+      textarea { font-size: 0.97em;}
+      button { font-size: 0.98em; padding: 9px 13vw;}
+      .circle { width: 48px; height:48px; font-size:1.05em;}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="circle">🎉</div>
+  <h2 id="questionText">John, are you coming for the birthday?</h2>
+
+  <div id="formSection" aria-hidden="false">
+    <div id="responseButtons">
+      <button id="yesBtn" aria-label="YES button">YES</button>
+      <button id="noBtn" aria-label="NO button">NO</button>
+    </div>
+
+    <div id="thoughtSection" style="display:none;" aria-live="polite">
+      <label for="thoughtInput">Want to add a message? <span style="color:#ef41c0;font-weight:400;">(Optional)</span></label><br />
+      <textarea id="thoughtInput" placeholder="Write your message here..."></textarea>
+      <button id="submitThought">Submit</button>
+      <button id="skipThought">Skip</button>
+    </div>
+  </div>
+
+  <div id="statusMsg" role="alert" class="summary" aria-live="assertive"></div>
+  <button id="editDetail" style="display:none;">Edit your details</button>
+
+</div>
+<script>
+  // Elements
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const thoughtSection = document.getElementById('thoughtSection');
+  const thoughtInput = document.getElementById('thoughtInput');
+  const submitThought = document.getElementById('submitThought');
+  const skipThought = document.getElementById('skipThought');
+  const statusMsg = document.getElementById('statusMsg');
+  const editDetailBtn = document.getElementById('editDetail');
+  const responseButtons = document.getElementById('responseButtons');
+  const questionText = document.getElementById('questionText');
+  const formSection = document.getElementById('formSection');
+
+  // Customize invitee and event here:
+  const inviteeName = "John";
+  const eventName = "birthday";
+  questionText.textContent = `${inviteeName}, are you coming for the ${eventName}?`;
+
+  function displaySummary() {
+    const savedResponse = localStorage.getItem('rsvpResponse');
+    const savedThought = localStorage.getItem('rsvpThought');
+    statusMsg.innerHTML = `You answered: <b>${savedResponse ? savedResponse.toUpperCase() : ''}</b><br>` +
+      (savedThought ? `Your message: <i>${savedThought}</i><br>` : '') +
+      "You can <b>edit your details</b> anytime.";
+    editDetailBtn.style.display = 'inline-block';
+    formSection.setAttribute("aria-hidden", "true");
+  }
+
+  function displayForm() {
+    formSection.setAttribute("aria-hidden", "false");
+    statusMsg.textContent = '';
+    editDetailBtn.style.display = 'none';
+    responseButtons.style.display = 'block';
+    thoughtSection.style.display = 'none';
+    thoughtInput.value = '';
+  }
+
+  // On yes/no click
+  function handleResponse(response) {
+    localStorage.setItem('rsvpResponse', response);
+    responseButtons.style.display = 'none';
+    thoughtSection.style.display = 'block';
+    thoughtInput.value = localStorage.getItem('rsvpThought') || '';
+    thoughtInput.focus();
+  }
+
+  // On thought submit
+  function submitThoughtHandler() {
+    const thought = thoughtInput.value.trim();
+    localStorage.setItem('rsvpThought', thought);
+    displaySummary();
+  }
+
+  // On skip
+  function skipThoughtHandler() {
+    localStorage.setItem('rsvpThought', '');
+    displaySummary();
+  }
+
+  // Edit details handler
+  function editDetailHandler() {
+    displayForm();
+    const savedResponse = localStorage.getItem('rsvpResponse');
+    if (savedResponse) {
+      responseButtons.style.display = 'none';
+      thoughtSection.style.display = 'block';
+      thoughtInput.value = localStorage.getItem('rsvpThought') || '';
+      if (savedResponse === "yes") {
+        statusMsg.innerHTML = "Previously selected <b>YES</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
+      } else {
+        statusMsg.innerHTML = "Previously selected <b>NO</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
+      }
+      setTimeout(() => {
+        const changeAnswer = document.getElementById('changeAnswer');
+        if (changeAnswer) {
+          changeAnswer.onclick = function(e){
+            e.preventDefault();
+            localStorage.removeItem('rsvpResponse');
+            localStorage.removeItem('rsvpThought');
+            displayForm();
+          };
+        }
+      }, 0);
+    }
+  }
+
+  yesBtn.addEventListener('click', () => handleResponse('yes'));
+  noBtn.addEventListener('click', () => handleResponse('no'));
+  submitThought.addEventListener('click', submitThoughtHandler);
+  skipThought.addEventListener('click', skipThoughtHandler);
+  editDetailBtn.addEventListener('click', editDetailHandler);
+
+  window.onload = function() {
+    const savedResponse = localStorage.getItem('rsvpResponse');
+    if (savedResponse) {
+      displaySummary();
+    } else {
+      displayForm();
+    }
+  };
+</script>
+</body>
+</html>
