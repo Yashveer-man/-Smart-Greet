@@ -15,10 +15,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       text-align: center;
     }
-    h2 {
-      margin-bottom: 25px;
-      color: #333;
-    }
+    h2 { margin-bottom: 25px; color: #333; }
     button {
       font-size: 1.1em;
       padding: 10px 25px;
@@ -27,27 +24,13 @@
       border-radius: 6px;
       cursor: pointer;
       user-select: none;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s;
     }
-    button#yesBtn {
-      background-color: #4caf50;
-      color: white;
-    }
-    button#yesBtn:hover {
-      background-color: #45a049;
-    }
-    button#noBtn {
-      background-color: #f44336;
-      color: white;
-    }
-    button#noBtn:hover {
-      background-color: #d32f2f;
-    }
-    #thoughtSection {
-      margin-top: 30px;
-      display: none;
-      text-align: left;
-    }
+    button#yesBtn { background: #4caf50; color: #fff; }
+    button#yesBtn:hover { background: #45a049; }
+    button#noBtn { background: #f44336; color: #fff; }
+    button#noBtn:hover { background: #d32f2f; }
+    #thoughtSection { margin-top: 30px; text-align: left; }
     textarea {
       width: 100%;
       height: 80px;
@@ -66,62 +49,40 @@
       font-size: 1em;
       margin-right: 10px;
     }
-    #submitThought {
-      background-color: #007bff;
-      color: white;
-    }
-    #submitThought:hover {
-      background-color: #0069d9;
-    }
-    #skipThought {
-      background-color: #777;
-      color: white;
-    }
-    #skipThought:hover {
-      background-color: #555;
-    }
-    #statusMsg {
-      margin-top: 25px;
-      font-weight: bold;
-      color: #2e7d32; /* green */
-    }
-    #changeResponse {
-      margin-top: 20px;
-      background: none;
-      color: #007bff;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9em;
-      text-decoration: underline;
-      padding: 0;
-    }
-    #changeResponse:hover {
-      color: #004085;
-    }
+    #submitThought { background: #007bff; color: #fff; }
+    #submitThought:hover { background: #0069d9; }
+    #skipThought { background: #777; color: #fff; }
+    #skipThought:hover { background: #555; }
+    #statusMsg { margin-top: 25px; font-weight: bold; color: #2e7d32; }
+    #editDetail { margin-top: 20px; background: none; color: #007bff; border: none; cursor: pointer; font-size: 0.95em; text-decoration: underline; padding: 0; }
+    #editDetail:hover { color: #004085; }
+    #formSection[aria-hidden="true"] { display: none; }
   </style>
 </head>
 <body>
 
   <h2 id="questionText">John, are you coming for the birthday?</h2>
 
-  <div id="responseButtons">
-    <button id="yesBtn" aria-label="YES button">YES</button>
-    <button id="noBtn" aria-label="NO button">NO</button>
-  </div>
+  <div id="formSection" aria-hidden="false">
+    <div id="responseButtons">
+      <button id="yesBtn" aria-label="YES button">YES</button>
+      <button id="noBtn" aria-label="NO button">NO</button>
+    </div>
 
-  <div id="thoughtSection" aria-live="polite">
-    <label for="thoughtInput"><strong>Want to share a message? (Optional)</strong></label><br />
-    <textarea id="thoughtInput" placeholder="Write your message here..."></textarea><br />
-    <button id="submitThought">Submit</button>
-    <button id="skipThought">Skip</button>
+    <div id="thoughtSection" style="display:none;" aria-live="polite">
+      <label for="thoughtInput"><strong>Want to share a message? (Optional)</strong></label><br />
+      <textarea id="thoughtInput" placeholder="Write your message here..."></textarea><br />
+      <button id="submitThought">Submit</button>
+      <button id="skipThought">Skip</button>
+    </div>
   </div>
 
   <div id="statusMsg" role="alert" aria-live="assertive"></div>
 
-  <button id="changeResponse" style="display:none;">Change your answer</button>
+  <button id="editDetail" style="display:none;">Edit your details</button>
 
 <script>
-  // Shortcut to access elements
+  // Elements
   const yesBtn = document.getElementById('yesBtn');
   const noBtn = document.getElementById('noBtn');
   const thoughtSection = document.getElementById('thoughtSection');
@@ -129,76 +90,101 @@
   const submitThought = document.getElementById('submitThought');
   const skipThought = document.getElementById('skipThought');
   const statusMsg = document.getElementById('statusMsg');
-  const changeResponseBtn = document.getElementById('changeResponse');
+  const editDetailBtn = document.getElementById('editDetail');
   const responseButtons = document.getElementById('responseButtons');
   const questionText = document.getElementById('questionText');
+  const formSection = document.getElementById('formSection');
 
-  // Optional: You can customize the question here or dynamically (ex: from URL params)
+  // Change these to personalize:
   const inviteeName = "John";
   const eventName = "birthday";
   questionText.textContent = `${inviteeName}, are you coming for the ${eventName}?`;
 
-  // Refresh UI based on saved responses in localStorage
-  function loadSavedData() {
+  function displaySummary() {
     const savedResponse = localStorage.getItem('rsvpResponse');
     const savedThought = localStorage.getItem('rsvpThought');
-    if (savedResponse) {
-      // Hide buttons, show thought section and status
-      responseButtons.style.display = 'none';
-      thoughtSection.style.display = 'block';
-      changeResponseBtn.style.display = 'inline';
-      statusMsg.textContent = `You answered: "${savedResponse.toUpperCase()}"`;
-      thoughtInput.value = savedThought || '';
-    }
+    statusMsg.innerHTML = `You answered: <b>${savedResponse ? savedResponse.toUpperCase() : ''}</b><br>` +
+      (savedThought ? `Your message: <i>${savedThought}</i><br>` : '') +
+      "You can <b>edit your details</b> anytime.";
+    editDetailBtn.style.display = 'inline';
+    formSection.setAttribute("aria-hidden", "true");
   }
 
-  // When user clicks YES or NO
+  function displayForm() {
+    formSection.setAttribute("aria-hidden", "false");
+    statusMsg.textContent = '';
+    editDetailBtn.style.display = 'none';
+    responseButtons.style.display = 'block';
+    thoughtSection.style.display = 'none';
+    thoughtInput.value = '';
+  }
+
+  // On yes/no click
   function handleResponse(response) {
     localStorage.setItem('rsvpResponse', response);
-    // Show thought section, hide answer buttons
     responseButtons.style.display = 'none';
     thoughtSection.style.display = 'block';
-    changeResponseBtn.style.display = 'inline';
-    statusMsg.textContent = `You answered: "${response.toUpperCase()}"`;
     thoughtInput.value = localStorage.getItem('rsvpThought') || '';
     thoughtInput.focus();
   }
 
-  // Submit Thought handler
+  // On thought submit
   function submitThoughtHandler() {
     const thought = thoughtInput.value.trim();
     localStorage.setItem('rsvpThought', thought);
-    statusMsg.textContent = "Thank you! Your response and message have been saved.";
+    displaySummary();
   }
 
-  // Skip Thought handler
+  // On skip
   function skipThoughtHandler() {
     localStorage.setItem('rsvpThought', '');
-    statusMsg.textContent = "Thanks for your response! You can add a message anytime.";
-    thoughtInput.value = '';
+    displaySummary();
   }
 
-  // Change response handler
-  function changeResponseHandler() {
-    // Clear saved data to allow re-answer
-    localStorage.removeItem('rsvpResponse');
-    localStorage.removeItem('rsvpThought');
-    // Reset UI
-    responseButtons.style.display = 'block';
-    thoughtSection.style.display = 'none';
-    changeResponseBtn.style.display = 'none';
-    statusMsg.textContent = '';
+  // Edit details handler
+  function editDetailHandler() {
+    displayForm();
+    const savedResponse = localStorage.getItem('rsvpResponse');
+    if (savedResponse) {
+      responseButtons.style.display = 'none';
+      thoughtSection.style.display = 'block';
+      thoughtInput.value = localStorage.getItem('rsvpThought') || '';
+      if (savedResponse === "yes") {
+        statusMsg.innerHTML = "Previously selected <b>YES</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
+      } else {
+        statusMsg.innerHTML = "Previously selected <b>NO</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
+      }
+      // Handler for "change answer" link
+      setTimeout(() => {
+        const changeAnswer = document.getElementById('changeAnswer');
+        if (changeAnswer) {
+          changeAnswer.onclick = function(e){
+            e.preventDefault();
+            // Clear everything and restart
+            localStorage.removeItem('rsvpResponse');
+            localStorage.removeItem('rsvpThought');
+            displayForm();
+          };
+        }
+      }, 0);
+    }
   }
 
-  // Event listeners
   yesBtn.addEventListener('click', () => handleResponse('yes'));
   noBtn.addEventListener('click', () => handleResponse('no'));
   submitThought.addEventListener('click', submitThoughtHandler);
   skipThought.addEventListener('click', skipThoughtHandler);
-  changeResponseBtn.addEventListener('click', changeResponseHandler);
+  editDetailBtn.addEventListener('click', editDetailHandler);
 
-  // On page load
-  window.onload = loadSavedData;
+  // On page load — show summary if answers exist:
+  window.onload = function() {
+    const savedResponse = localStorage.getItem('rsvpResponse');
+    if (savedResponse) {
+      displaySummary();
+    } else {
+      displayForm();
+    }
+  };
 </script>
 
 </body>
