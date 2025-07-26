@@ -4,188 +4,129 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quick RSVP Invitation</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;400&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 450px;
-      margin: 40px auto;
-      background: #fafafa;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(120deg, #e3f6fd 0%, #fafafa 50%, #f9d8ec 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      box-shadow: 0 6px 30px rgba(58,75,130,0.10), 0 1.5px 8px rgba(239,65,194,0.04);
+      border-radius: 18px;
+      padding: 38px 26px 30px 26px;
+      max-width: 410px;
+      width: 95vw;
       text-align: center;
+      position: relative;
+      animation: fadein 0.7s;
     }
-    h2 { margin-bottom: 25px; color: #333; }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: none; }
+    }
+    h2 {
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 25px;
+      color: #234975;
+      font-size: 1.22em;
+    }
+    .circle {
+      width: 58px; height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(140deg, #64b5f6 40%, #ef41c0 100%);
+      margin: 0 auto 19px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.85em;
+      color: #fff;
+      box-shadow: 0 2px 8px #f9d8ec80;
+    }
     button {
+      font-family: inherit;
+      font-weight: 600;
       font-size: 1.1em;
-      padding: 10px 25px;
-      margin: 10px 15px;
+      padding: 12px 30px;
+      margin: 0 12px 14px 12px;
       border: none;
-      border-radius: 6px;
+      border-radius: 7px;
       cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s;
+      transition: background 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px #bae3f780;
+      outline: none;
     }
-    button#yesBtn { background: #4caf50; color: #fff; }
-    button#yesBtn:hover { background: #45a049; }
-    button#noBtn { background: #f44336; color: #fff; }
-    button#noBtn:hover { background: #d32f2f; }
-    #thoughtSection { margin-top: 30px; text-align: left; }
+    button#yesBtn {
+      background: linear-gradient(90deg,#54d286 60%, #10be68);
+      color: #fff;
+    }
+    button#yesBtn:hover, #submitThought:hover {
+      background: linear-gradient(90deg,#44b070 60%, #108a48);
+    }
+    button#noBtn {
+      background: linear-gradient(90deg,#ff6d7d 55%, #fa215f);
+      color: #fff;
+    }
+    button#noBtn:hover, #skipThought:hover{
+      background: linear-gradient(90deg,#e45062 55%, #d30e42);
+    }
+    #submitThought {
+      background: linear-gradient(90deg, #71cbf5 70%, #1471d8);
+      color: #fff;
+      margin-right: 7px;
+    }
+    #skipThought {
+      background: #e0e0e0;
+      color: #444;
+      margin-left: 7px;
+    }
+    #editDetail {
+      margin-top: 23px;
+      background: none;
+      color: #2977c6;
+      border: none;
+      font-size: 1em;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-block;
+    }
+    #editDetail:hover { color: #128dd8; }
+    #formSection[aria-hidden="true"] { display: none; }
+    #responseButtons { margin-bottom: 7px; }
+    #thoughtSection { margin-top: 20px; text-align: left; }
     textarea {
       width: 100%;
-      height: 80px;
-      padding: 10px;
-      font-size: 1em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      min-height: 70px;
+      max-height: 120px;
       resize: vertical;
-    }
-    #submitThought, #skipThought {
-      margin-top: 12px;
-      padding: 8px 20px;
-      border: none;
+      font-size: 1.03em;
+      border: 1.6px solid #bbe2f6;
       border-radius: 6px;
-      cursor: pointer;
+      padding: 8px;
+      margin-top: 7px;
+      margin-bottom: 7px;
+      background: #f7fafd;
+      box-sizing: border-box;
+      transition: border-color 0.18s;
+    }
+    textarea:focus {
+      border-color: #54d286;
+      outline: none;
+    }
+    label {
+      margin-top: 0;
       font-size: 1em;
-      margin-right: 10px;
+      font-weight: 500;
+      color: #334;
     }
-    #submitThought { background: #007bff; color: #fff; }
-    #submitThought:hover { background: #0069d9; }
-    #skipThought { background: #777; color: #fff; }
-    #skipThought:hover { background: #555; }
-    #statusMsg { margin-top: 25px; font-weight: bold; color: #2e7d32; }
-    #editDetail { margin-top: 20px; background: none; color: #007bff; border: none; cursor: pointer; font-size: 0.95em; text-decoration: underline; padding: 0; }
-    #editDetail:hover { color: #004085; }
-    #formSection[aria-hidden="true"] { display: none; }
-  </style>
-</head>
-<body>
-
-  <h2 id="questionText">John, are you coming for the birthday?</h2>
-
-  <div id="formSection" aria-hidden="false">
-    <div id="responseButtons">
-      <button id="yesBtn" aria-label="YES button">YES</button>
-      <button id="noBtn" aria-label="NO button">NO</button>
-    </div>
-
-    <div id="thoughtSection" style="display:none;" aria-live="polite">
-      <label for="thoughtInput"><strong>Want to share a message? (Optional)</strong></label><br />
-      <textarea id="thoughtInput" placeholder="Write your message here..."></textarea><br />
-      <button id="submitThought">Submit</button>
-      <button id="skipThought">Skip</button>
-    </div>
-  </div>
-
-  <div id="statusMsg" role="alert" aria-live="assertive"></div>
-
-  <button id="editDetail" style="display:none;">Edit your details</button>
-
-<script>
-  // Elements
-  const yesBtn = document.getElementById('yesBtn');
-  const noBtn = document.getElementById('noBtn');
-  const thoughtSection = document.getElementById('thoughtSection');
-  const thoughtInput = document.getElementById('thoughtInput');
-  const submitThought = document.getElementById('submitThought');
-  const skipThought = document.getElementById('skipThought');
-  const statusMsg = document.getElementById('statusMsg');
-  const editDetailBtn = document.getElementById('editDetail');
-  const responseButtons = document.getElementById('responseButtons');
-  const questionText = document.getElementById('questionText');
-  const formSection = document.getElementById('formSection');
-
-  // Change these to personalize:
-  const inviteeName = "John";
-  const eventName = "birthday";
-  questionText.textContent = `${inviteeName}, are you coming for the ${eventName}?`;
-
-  function displaySummary() {
-    const savedResponse = localStorage.getItem('rsvpResponse');
-    const savedThought = localStorage.getItem('rsvpThought');
-    statusMsg.innerHTML = `You answered: <b>${savedResponse ? savedResponse.toUpperCase() : ''}</b><br>` +
-      (savedThought ? `Your message: <i>${savedThought}</i><br>` : '') +
-      "You can <b>edit your details</b> anytime.";
-    editDetailBtn.style.display = 'inline';
-    formSection.setAttribute("aria-hidden", "true");
-  }
-
-  function displayForm() {
-    formSection.setAttribute("aria-hidden", "false");
-    statusMsg.textContent = '';
-    editDetailBtn.style.display = 'none';
-    responseButtons.style.display = 'block';
-    thoughtSection.style.display = 'none';
-    thoughtInput.value = '';
-  }
-
-  // On yes/no click
-  function handleResponse(response) {
-    localStorage.setItem('rsvpResponse', response);
-    responseButtons.style.display = 'none';
-    thoughtSection.style.display = 'block';
-    thoughtInput.value = localStorage.getItem('rsvpThought') || '';
-    thoughtInput.focus();
-  }
-
-  // On thought submit
-  function submitThoughtHandler() {
-    const thought = thoughtInput.value.trim();
-    localStorage.setItem('rsvpThought', thought);
-    displaySummary();
-  }
-
-  // On skip
-  function skipThoughtHandler() {
-    localStorage.setItem('rsvpThought', '');
-    displaySummary();
-  }
-
-  // Edit details handler
-  function editDetailHandler() {
-    displayForm();
-    const savedResponse = localStorage.getItem('rsvpResponse');
-    if (savedResponse) {
-      responseButtons.style.display = 'none';
-      thoughtSection.style.display = 'block';
-      thoughtInput.value = localStorage.getItem('rsvpThought') || '';
-      if (savedResponse === "yes") {
-        statusMsg.innerHTML = "Previously selected <b>YES</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
-      } else {
-        statusMsg.innerHTML = "Previously selected <b>NO</b>. You can change your message or <a href='#' id='changeAnswer'>change your answer</a>.";
-      }
-      // Handler for "change answer" link
-      setTimeout(() => {
-        const changeAnswer = document.getElementById('changeAnswer');
-        if (changeAnswer) {
-          changeAnswer.onclick = function(e){
-            e.preventDefault();
-            // Clear everything and restart
-            localStorage.removeItem('rsvpResponse');
-            localStorage.removeItem('rsvpThought');
-            displayForm();
-          };
-        }
-      }, 0);
-    }
-  }
-
-  yesBtn.addEventListener('click', () => handleResponse('yes'));
-  noBtn.addEventListener('click', () => handleResponse('no'));
-  submitThought.addEventListener('click', submitThoughtHandler);
-  skipThought.addEventListener('click', skipThoughtHandler);
-  editDetailBtn.addEventListener('click', editDetailHandler);
-
-  // On page load — show summary if answers exist:
-  window.onload = function() {
-    const savedResponse = localStorage.getItem('rsvpResponse');
-    if (savedResponse) {
-      displaySummary();
-    } else {
-      displayForm();
-    }
-  };
-</script>
-
-</body>
-</html>
+    #statusMsg {
+      margin-top: 25px;
+      font-weight: 500;
